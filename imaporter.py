@@ -105,8 +105,8 @@ def process_new_emails(src_client, dst_client, config):
     spam_folder = '[Gmail]/Spam'
     delete_source = config['source'].getboolean('delete_on_source', True)
 
-    for uid, msg_data in src_client.fetch(messages, 'RFC822').items():
-        raw_msg = msg_data.get(b'RFC822')
+    for uid, msg_data in src_client.fetch(messages, ['BODY.PEEK[]']).items():
+        raw_msg = msg_data.get(b'BODY[]')
         if not raw_msg:
             continue
 
@@ -169,7 +169,11 @@ def process_new_emails(src_client, dst_client, config):
                 except Exception as e:
                     logger.error(f"Failed to delete source msg {uid}: {e}")
             else:
-                logger.info(f"Msg UID {uid} retained on source (delete_on_source=false)")
+                try:
+                    src_client.add_flags(uid, [b'\\Seen'])
+                    logger.info(f"Msg UID {uid} retained on source and marked Read (delete_on_source=false)")
+                except Exception as e:
+                    logger.error(f"Failed to mark source msg {uid} as Read: {e}")
                 
     return True
 
