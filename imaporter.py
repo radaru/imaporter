@@ -103,6 +103,7 @@ def process_new_emails(src_client, dst_client, config):
     ham_folder = config['destination'].get('ham_folder', 'INBOX')
     ham_label = config['destination'].get('ham_label', '')
     spam_folder = '[Gmail]/Spam'
+    delete_source = config['source'].getboolean('delete_on_source', True)
 
     for uid, msg_data in src_client.fetch(messages, 'RFC822').items():
         raw_msg = msg_data.get(b'RFC822')
@@ -160,12 +161,15 @@ def process_new_emails(src_client, dst_client, config):
             break
             
         if delivered:
-            try:
-                src_client.add_flags(uid, [b'\\Deleted'])
-                src_client.expunge() # or wait to expunge all after loop
-                logger.info(f"Msg UID {uid} deleted from source")
-            except Exception as e:
-                logger.error(f"Failed to delete source msg {uid}: {e}")
+            if delete_source:
+                try:
+                    src_client.add_flags(uid, [b'\\Deleted'])
+                    src_client.expunge() # or wait to expunge all after loop
+                    logger.info(f"Msg UID {uid} deleted from source")
+                except Exception as e:
+                    logger.error(f"Failed to delete source msg {uid}: {e}")
+            else:
+                logger.info(f"Msg UID {uid} retained on source (delete_on_source=false)")
                 
     return True
 
