@@ -5,6 +5,12 @@
 # ==============================================================================
 
 if bashio::config.true 'spamassassin_enabled'; then
+    bashio::log.info "Updating SpamAssassin rules..."
+    if sa-update; then
+        bashio::log.info "SpamAssassin rules updated successfully."
+    else
+        bashio::log.warning "SpamAssassin rule update failed or no new updates available."
+    fi
     bashio::log.info "Starting SpamAssassin daemon..."
     exec spamd --listen=127.0.0.1 --allow-tell --nouser-config
 else
