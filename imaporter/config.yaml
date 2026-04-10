@@ -1,0 +1,53 @@
+# https://developers.home-assistant.io/docs/apps/configuration#app-configuration
+name: IMAPorter
+version: "1.0.0"
+slug: imaporter
+description: >-
+  Fetch emails from an external IMAP account via IDLE push notifications,
+  filter through SpamAssassin, and deliver to Gmail via IMAP APPEND.
+url: https://github.com/sszydo/imaporter
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: services
+boot: auto
+stage: experimental
+options:
+  source_host: "imap.example.com"
+  source_port: 993
+  source_username: ""
+  source_password: ""
+  source_ssl: true
+  source_folder: "INBOX"
+  source_delete: true
+  destination_host: "imap.gmail.com"
+  destination_port: 993
+  destination_username: ""
+  destination_password: ""
+  destination_ssl: true
+  destination_ham_folder: "INBOX"
+  destination_ham_label: ""
+  destination_spam_folder: "[Gmail]/Spam"
+  spamassassin_enabled: true
+  spamassassin_max_size: 5242880
+  log_level: "info"
+schema:
+  source_host: str
+  source_port: port
+  source_username: str
+  source_password: password
+  source_ssl: bool
+  source_folder: str
+  source_delete: bool
+  destination_host: str
+  destination_port: port
+  destination_username: str
+  destination_password: password
+  destination_ssl: bool
+  destination_ham_folder: str
+  destination_ham_label: "str?"
+  destination_spam_folder: str
+  spamassassin_enabled: bool
+  spamassassin_max_size: "int(0,)"
+  log_level: "list(debug|info|warning|error)"
