@@ -1,0 +1,4 @@
+# https://developers.home-assistant.io/docs/apps/repository#repository-configuration
+name: IMAPorter
+url: https://github.com/st4nson/imaporter
+maintainer: st4nson

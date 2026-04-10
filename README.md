@@ -1,6 +1,7 @@
 # IMAPorter
 
-A self-hosted IMAP proxy script running as a `systemd` daemon.
+A self-hosted IMAP proxy that fetches emails from external accounts, filters
+them through SpamAssassin, and delivers them to Gmail via IMAP APPEND.
 
 Google is officially deprecating the ability to natively pull emails into Gmail from external POP3/IMAP accounts (via the legacy "Check mail from other accounts" setting). This project serves as a robust self-hosted replacement for that functionality. 
 
@@ -16,7 +17,24 @@ Features:
 
 ## Installation
 
-This application is designed specifically to run headless cleanly on Linux instances like Raspbian or Ubuntu via systemd wrappers.
+### Option A: Home Assistant Add-on (Recommended)
+
+If you run Home Assistant Operating System (HAOS), you can install IMAPorter
+as a supervised add-on with the bundled SpamAssassin — no manual setup needed.
+
+[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fst4nson%2Fimaporter)
+
+Or manually:
+
+1. In Home Assistant, go to **Settings > Add-ons > Add-on Store**
+2. Click the **three dots** menu (top right) > **Repositories**
+3. Paste the repository URL: `https://github.com/st4nson/imaporter`
+4. Click **Add** > **Close**
+5. Find **IMAPorter** in the store under "Local add-ons" and click **Install**
+6. Configure your source and destination IMAP credentials in the add-on **Configuration** tab
+7. Start the add-on
+
+### Option B: Bare-metal systemd (Linux)
 
 1. **Install OS Dependencies**:
    You only need Python and SpamAssassin installed globally:
