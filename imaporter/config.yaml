@@ -14,13 +14,14 @@ startup: services
 boot: auto
 stage: experimental
 options:
-  source_host: "imap.example.com"
-  source_port: 993
-  source_username: ""
-  source_password: ""
-  source_ssl: true
-  source_folder: "INBOX"
-  source_delete: true
+  sources:
+    - host: "imap.example.com"
+      port: 993
+      username: ""
+      password: ""
+      ssl: true
+      folder: "INBOX"
+      delete: true
   destination_host: "imap.gmail.com"
   destination_port: 993
   destination_username: ""
@@ -33,13 +34,14 @@ options:
   spamassassin_max_size: 5242880
   log_level: "info"
 schema:
-  source_host: str
-  source_port: port
-  source_username: str
-  source_password: password
-  source_ssl: bool
-  source_folder: str
-  source_delete: bool
+  sources:
+    - host: str
+      port: port
+      username: str
+      password: password
+      ssl: bool
+      folder: str
+      delete: bool
   destination_host: str
   destination_port: port
   destination_username: str
