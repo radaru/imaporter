@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+import argparse
 import configparser
 import logging
+import os
 import signal
 import subprocess
 import sys
@@ -10,8 +12,6 @@ from imapclient import IMAPClient
 from imapclient.exceptions import IMAPClientError
 import socket
 
-# Configure logging to go to stdout (systemd will capture this)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('imaporter')
 
 def load_config(config_path='config.ini'):
@@ -27,7 +27,6 @@ def connect_imap(config_section_opts, section_name=None):
     password = config_section_opts.get('password')
 
     # Secure Systemd Credentials override
-    import os
     cred_dir = os.environ.get('CREDENTIALS_DIRECTORY')
     if cred_dir and section_name:
         cred_file = os.path.join(cred_dir, f"{section_name}_password")
@@ -231,13 +230,24 @@ def sigterm_handler(_signo, _stack_frame):
     sys.exit(0)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='IMAPorter - IMAP email relay with SpamAssassin filtering')
+    parser.add_argument('--config', default='config.ini', help='Path to config file (default: config.ini)')
+    parser.add_argument('--log-level', default=os.environ.get('IMAPORTER_LOG_LEVEL', 'INFO'),
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+                        type=str.upper,
+                        help='Log level (default: INFO, or IMAPORTER_LOG_LEVEL env var)')
+    args = parser.parse_args()
+
+    logging.basicConfig(level=getattr(logging, args.log_level),
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
     signal.signal(signal.SIGTERM, sigterm_handler)
-    
+
     try:
-        conf = load_config()
+        conf = load_config(args.config)
     except Exception as e:
         logger.fatal(f"Could not load config file: {e}")
         sys.exit(1)
-        
+
     logger.info("Starting IMAPorter service.")
     run_loop(conf)
