@@ -1,0 +1,4 @@
+.gitconfig.local
+__pycache__/
+*.pyc
+venv/
