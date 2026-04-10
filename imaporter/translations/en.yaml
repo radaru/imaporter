@@ -1,0 +1,65 @@
+configuration:
+  source_host:
+    name: Source IMAP Host
+    description: Hostname of the source IMAP server to fetch emails from.
+  source_port:
+    name: Source IMAP Port
+    description: Port number for the source IMAP server (usually 993 for SSL).
+  source_username:
+    name: Source Username
+    description: Email address or username for the source IMAP account.
+  source_password:
+    name: Source Password
+    description: Password or app-specific password for the source IMAP account.
+  source_ssl:
+    name: Source SSL
+    description: Enable SSL/TLS for the source IMAP connection.
+  source_folder:
+    name: Source Folder
+    description: IMAP folder to monitor for new emails (usually INBOX).
+  source_delete:
+    name: Delete from Source
+    description: >-
+      If enabled, emails are deleted from the source after delivery.
+      If disabled, emails are marked as read instead.
+  destination_host:
+    name: Destination IMAP Host
+    description: Hostname of the destination IMAP server (e.g., imap.gmail.com).
+  destination_port:
+    name: Destination IMAP Port
+    description: Port number for the destination IMAP server (usually 993 for SSL).
+  destination_username:
+    name: Destination Username
+    description: Email address or username for the destination IMAP account.
+  destination_password:
+    name: Destination Password
+    description: >-
+      Password for the destination IMAP account.
+      For Gmail, use an App Password (not your regular password).
+  destination_ssl:
+    name: Destination SSL
+    description: Enable SSL/TLS for the destination IMAP connection.
+  destination_ham_folder:
+    name: Ham Folder
+    description: Destination folder for legitimate (non-spam) emails (usually INBOX).
+  destination_ham_label:
+    name: Ham Label
+    description: >-
+      Optional Gmail label to apply to delivered emails.
+      Leave empty to skip labeling. Must differ from Ham Folder to take effect.
+  destination_spam_folder:
+    name: Spam Folder
+    description: Destination folder for spam emails (e.g., [Gmail]/Spam).
+  spamassassin_enabled:
+    name: Enable SpamAssassin
+    description: >-
+      Enable spam filtering via the bundled SpamAssassin daemon.
+      If disabled, all emails are treated as legitimate.
+  spamassassin_max_size:
+    name: SpamAssassin Max Size
+    description: >-
+      Maximum message size in bytes to send to SpamAssassin for scanning.
+      Messages larger than this are skipped and treated as ham. Default is 5 MB.
+  log_level:
+    name: Log Level
+    description: Controls the verbosity of IMAPorter logging output.
