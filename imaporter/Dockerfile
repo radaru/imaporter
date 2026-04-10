@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     spamassassin \
     spamassassin-client \
     && pip3 install --no-cache-dir --break-system-packages \
-        "imapclient>=3.0.1"
+        "imapclient>=3.0.1" \
+    && sa-update || true
 
 # Copy application code
 COPY imaporter.py /opt/imaporter/
