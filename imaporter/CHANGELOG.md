@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Fix SpamAssassin "no rules were found" error by running sa-update during image build
+- Run sa-update at each add-on startup to keep SpamAssassin rules fresh
+
 ## 1.0.0
 
 - Initial Home Assistant add-on release
