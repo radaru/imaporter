@@ -1,0 +1,13 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start SpamAssassin daemon (spamd)
+# Only starts if spamassassin_enabled is true in add-on config
+# ==============================================================================
+
+if bashio::config.true 'spamassassin_enabled'; then
+    bashio::log.info "Starting SpamAssassin daemon..."
+    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config
+else
+    bashio::log.info "SpamAssassin disabled in configuration, skipping."
+    exec sleep infinity
+fi
