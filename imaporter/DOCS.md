@@ -60,4 +60,4 @@ email routing.
 ## Support
 
 For issues and feature requests, visit the
-[GitHub repository](https://github.com/sszydo/imaporter).
+[GitHub repository](https://github.com/st4nson/imaporter).

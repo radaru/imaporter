@@ -23,5 +23,5 @@ LABEL \
     io.hass.type="addon" \
     org.opencontainers.image.title="Home Assistant Add-on: IMAPorter" \
     org.opencontainers.image.description="Fetch emails via IMAP IDLE, filter through SpamAssassin, deliver to Gmail" \
-    org.opencontainers.image.source="https://github.com/sszydo/imaporter" \
+    org.opencontainers.image.source="https://github.com/st4nson/imaporter" \
     org.opencontainers.image.licenses="MIT"
