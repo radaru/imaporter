@@ -26,6 +26,7 @@ class SourceConfig:
     username: str
     password: str
     delete_on_source: bool
+    ham_label: str
 
 @dataclass
 class DestConfig:
@@ -35,7 +36,6 @@ class DestConfig:
     username: str
     password: str
     ham_folder: str
-    ham_label: str
 
 @dataclass
 class SpamConfig:
@@ -49,16 +49,6 @@ class ConfigManager:
         if not self.config.read(config_path):
             raise FileNotFoundError(f"Config file '{config_path}' not found.")
             
-    def _get_systemd_password(self, key_name: str, default_pw: str) -> str:
-        cred_dir = os.environ.get('CREDENTIALS_DIRECTORY')
-        if cred_dir:
-            cred_file = os.path.join(cred_dir, f"{key_name}_password")
-            if os.path.exists(cred_file):
-                with open(cred_file, 'r') as f:
-                    logger.debug(f"Loaded {key_name} password from systemd secure credentials.")
-                    return f.read().strip()
-        return default_pw
-
     def get_sources(self) -> List[SourceConfig]:
         sources = []
         for section in self.config.sections():
@@ -66,50 +56,42 @@ class ConfigManager:
                 name = section.replace('source_', '', 1)
                 opts = self.config[section]
                 
-                base_pw = opts.get('password', '')
-                pw = self._get_systemd_password(section, base_pw)
-                
-                # Also fall back to legacy 'source_password' if named 'default'
-                if not pw and section == 'source_default':
-                    pw = self._get_systemd_password('source', '')
-                
                 sources.append(SourceConfig(
                     name=name,
                     host=opts.get('host'),
                     port=opts.getint('port', 993),
                     ssl=opts.getboolean('ssl', True),
                     username=opts.get('username'),
-                    password=pw,
-                    delete_on_source=opts.getboolean('delete_on_source', True)
+                    password=opts.get('password', ''),
+                    delete_on_source=opts.getboolean('delete_on_source', True),
+                    ham_label=opts.get('ham_label', '')
                 ))
                 
         # Support fallback legacy
         if not sources and 'source' in self.config.sections():
             opts = self.config['source']
-            pw = self._get_systemd_password('source', opts.get('password', ''))
             sources.append(SourceConfig(
                 name="default",
                 host=opts.get('host'),
                 port=opts.getint('port', 993),
                 ssl=opts.getboolean('ssl', True),
                 username=opts.get('username'),
-                password=pw,
-                delete_on_source=opts.getboolean('delete_on_source', True)
+                password=opts.get('password', ''),
+                delete_on_source=opts.getboolean('delete_on_source', True),
+                ham_label=opts.get('ham_label', '')
             ))
             
         return sources
 
     def get_destination(self) -> DestConfig:
         opts = self.config['destination']
-        pw = self._get_systemd_password('destination', opts.get('password', ''))
         return DestConfig(
             host=opts.get('host'),
             port=opts.getint('port', 993),
             ssl=opts.getboolean('ssl', True),
             username=opts.get('username'),
-            password=pw,
-            ham_folder=opts.get('ham_folder', 'INBOX'),
-            ham_label=opts.get('ham_label', '')
+            password=opts.get('password', ''),
+            ham_folder=opts.get('ham_folder', 'INBOX')
         )
         
     def get_spam_config(self) -> SpamConfig:
@@ -240,7 +222,7 @@ class RelayWorker(threading.Thread):
                     self.dst_conn.ensure_folder(self.dest_conf.ham_folder)
                     res = self.dst_conn.client.append(self.dest_conf.ham_folder, scored_msg)
                     
-                    ham_label = self.dest_conf.ham_label
+                    ham_label = self.source_conf.ham_label
                     if ham_label and ham_label != self.dest_conf.ham_folder:
                         self.dst_conn.ensure_folder(ham_label)
                         parsed_uid = None
