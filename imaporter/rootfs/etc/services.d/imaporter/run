@@ -32,6 +32,7 @@ username = $(bashio::config 'destination_username')
 password = $(bashio::config 'destination_password')
 ssl = $(bashio::config 'destination_ssl')
 ham_folder = $(bashio::config 'destination_ham_folder')
+spam_folder = $(bashio::config 'destination_spam_folder')
 
 [spamassassin]
 enabled = $(bashio::config 'spamassassin_enabled')

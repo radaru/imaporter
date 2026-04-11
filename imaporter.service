@@ -1,5 +1,5 @@
 [Unit]
-Description=IMAPorter (Account A -> Gmail)
+Description=IMAPorter (Email Relay to Gmail)
 After=network-online.target spamassassin.service
 Wants=network-online.target
 

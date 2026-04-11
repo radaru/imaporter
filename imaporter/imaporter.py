@@ -36,6 +36,7 @@ class DestConfig:
     username: str
     password: str
     ham_folder: str
+    spam_folder: str
 
 @dataclass
 class SpamConfig:
@@ -91,7 +92,8 @@ class ConfigManager:
             ssl=opts.getboolean('ssl', True),
             username=opts.get('username'),
             password=opts.get('password', ''),
-            ham_folder=opts.get('ham_folder', 'INBOX')
+            ham_folder=opts.get('ham_folder', 'INBOX'),
+            spam_folder=opts.get('spam_folder', '[Gmail]/Spam')
         )
         
     def get_spam_config(self) -> SpamConfig:
@@ -199,8 +201,6 @@ class RelayWorker(threading.Thread):
             return True
 
         logger.info(f"[{self.name}] Found {len(messages)} unread messages to process.")
-        
-        spam_folder = '[Gmail]/Spam'
 
         for uid, msg_data in self.src_conn.client.fetch(messages, ['BODY.PEEK[]']).items():
             if self.shutdown_event.is_set():
@@ -216,8 +216,9 @@ class RelayWorker(threading.Thread):
             delivered = False
             try:
                 if is_spam:
-                    self.dst_conn.client.append(spam_folder, scored_msg, flags=(b'Junk',))
-                    logger.info(f"[{self.name}] Msg UID {uid} appended to {spam_folder} (Spam)")
+                    self.dst_conn.ensure_folder(self.dest_conf.spam_folder)
+                    self.dst_conn.client.append(self.dest_conf.spam_folder, scored_msg, flags=(b'Junk',))
+                    logger.info(f"[{self.name}] Msg UID {uid} appended to {self.dest_conf.spam_folder} (Spam)")
                 else:
                     self.dst_conn.ensure_folder(self.dest_conf.ham_folder)
                     res = self.dst_conn.client.append(self.dest_conf.ham_folder, scored_msg)
@@ -249,7 +250,8 @@ class RelayWorker(threading.Thread):
                 delivered = True
             except Exception as e:
                 logger.error(f"[{self.name}] Failed to deliver msg: {e}")
-                break
+                # Bubble up so the worker disconnects and spawns a fresh dest_conn channel structure!
+                raise
                 
             if delivered:
                 if self.source_conf.delete_on_source:
@@ -278,7 +280,7 @@ class RelayWorker(threading.Thread):
                 if self.shutdown_event.is_set():
                     break
                     
-                logger.info(f"[{self.name}] Entering IMAP IDLE state...")
+                logger.debug(f"[{self.name}] Entering IMAP IDLE state...")
                 self.src_conn.client.idle()
                 
                 for _ in range(29 * 60):
