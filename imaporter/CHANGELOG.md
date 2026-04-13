@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+
+- Expose `spamassassin_required_score` option in the add-on UI (default: 5.0)
+- Support custom SpamAssassin rules via `/config/imaporter/spamassassin.cf`
+- Fix `map` type from legacy `config:ro` to `homeassistant_config:ro`
+- Add minimum Home Assistant version requirement (`2023.11.0`)
+
 ## 1.1.0
 
 - Added support for fetching from multiple source IMAP accounts

@@ -5,6 +5,18 @@
 # ==============================================================================
 
 if bashio::config.true 'spamassassin_enabled'; then
+    # Build local.cf from HA options
+    SCORE=$(bashio::config 'spamassassin_required_score')
+    bashio::log.info "Configuring SpamAssassin (required_score: ${SCORE})..."
+    echo "required_score ${SCORE}" > /etc/mail/spamassassin/local.cf
+
+    # Append user-supplied rules from /config/imaporter/spamassassin.cf if present
+    EXTERNAL_CF="/homeassistant/imaporter/spamassassin.cf"
+    if [ -f "${EXTERNAL_CF}" ]; then
+        bashio::log.info "Appending custom SpamAssassin rules from ${EXTERNAL_CF}..."
+        cat "${EXTERNAL_CF}" >> /etc/mail/spamassassin/local.cf
+    fi
+
     bashio::log.info "Updating SpamAssassin rules..."
     if sa-update; then
         bashio::log.info "SpamAssassin rules updated successfully."
