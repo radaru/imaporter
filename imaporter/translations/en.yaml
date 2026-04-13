@@ -1,23 +1,26 @@
 configuration:
-  source_host:
+  sources:
+    name: Source Accounts
+    description: Add one or more IMAP accounts to monitor.
+  host:
     name: Source IMAP Host
     description: Hostname of the source IMAP server to fetch emails from.
-  source_port:
+  port:
     name: Source IMAP Port
     description: Port number for the source IMAP server (usually 993 for SSL).
-  source_username:
+  username:
     name: Source Username
     description: Email address or username for the source IMAP account.
-  source_password:
+  password:
     name: Source Password
     description: Password or app-specific password for the source IMAP account.
-  source_ssl:
+  ssl:
     name: Source SSL
     description: Enable SSL/TLS for the source IMAP connection.
-  source_folder:
+  folder:
     name: Source Folder
     description: IMAP folder to monitor for new emails (usually INBOX).
-  source_delete:
+  delete:
     name: Delete from Source
     description: >-
       If enabled, emails are deleted from the source after delivery.

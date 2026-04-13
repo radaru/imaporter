@@ -50,18 +50,6 @@ chown -R ${SYS_USER}:${SYS_USER} ${APP_DIR}
 chmod 600 ${APP_DIR}/config.ini
 chmod 755 ${APP_DIR}/imaporter.py
 
-echo "Setting up secure systemd credentials folder..."
-mkdir -p /etc/imaporter
-chown root:root /etc/imaporter
-chmod 700 /etc/imaporter
-
-for cred in "source.secret" "destination.secret"; do
-    if [ ! -f "/etc/imaporter/$cred" ]; then
-        touch /etc/imaporter/$cred
-        chown root:root /etc/imaporter/$cred
-        chmod 600 /etc/imaporter/$cred
-    fi
-done
 
 echo "Installing systemd service..."
 cp imaporter.service /etc/systemd/system/
@@ -72,10 +60,6 @@ echo ""
 echo "Installation Finished!"
 echo "---------------------------------------------------------"
 echo "1. Configure IMAP settings: sudo nano ${APP_DIR}/config.ini"
-echo "2. Add your Source Password securely:"
-echo "   sudo nano /etc/imaporter/source.secret"
-echo "3. Add your Gmail App Password securely:"
-echo "   sudo nano /etc/imaporter/destination.secret"
-echo "4. Start the service: sudo systemctl start imaporter"
-echo "5. View live logs: make run-logs"
+echo "2. Start the service: sudo systemctl start imaporter"
+echo "3. View live logs: make run-logs"
 echo "---------------------------------------------------------"

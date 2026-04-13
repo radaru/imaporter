@@ -1,5 +1,5 @@
 [Unit]
-Description=IMAPorter (Account A -> Gmail)
+Description=IMAPorter (Email Relay to Gmail)
 After=network-online.target spamassassin.service
 Wants=network-online.target
 
@@ -10,8 +10,7 @@ WorkingDirectory=/opt/imaporter
 Restart=always
 RestartSec=30
 User=imaporter
-LoadCredential=source_password:/etc/imaporter/source.secret
-LoadCredential=destination_password:/etc/imaporter/destination.secret
+NoNewPrivileges=true
 ProtectHome=yes
 
 [Install]

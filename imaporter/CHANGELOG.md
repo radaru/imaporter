@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+- Added support for fetching from multiple source IMAP accounts
+- Simplified credential management (moved from systemd secrets to direct config file authentication)
+- Added SpamAssassin daemon integration improvements
+- Refactored core logic
+
 ## 1.0.1
 
 - Fix SpamAssassin "no rules were found" error by running sa-update during image build

@@ -9,16 +9,22 @@ CONFIG="/data/config.ini"
 bashio::log.info "Generating IMAPorter configuration from add-on options..."
 
 # Build config.ini from HA options.json
-cat > "${CONFIG}" <<EOF
-[source]
-host = $(bashio::config 'source_host')
-port = $(bashio::config 'source_port')
-username = $(bashio::config 'source_username')
-password = $(bashio::config 'source_password')
-ssl = $(bashio::config 'source_ssl')
-folder = $(bashio::config 'source_folder')
-delete_on_source = $(bashio::config 'source_delete')
+> "${CONFIG}"
 
+for source in $(bashio::config 'sources|keys'); do
+    echo "[source_${source}]" >> "${CONFIG}"
+    echo "host = $(bashio::config "sources[${source}].host")" >> "${CONFIG}"
+    echo "port = $(bashio::config "sources[${source}].port")" >> "${CONFIG}"
+    echo "username = $(bashio::config "sources[${source}].username")" >> "${CONFIG}"
+    echo "password = $(bashio::config "sources[${source}].password")" >> "${CONFIG}"
+    echo "ssl = $(bashio::config "sources[${source}].ssl")" >> "${CONFIG}"
+    echo "folder = $(bashio::config "sources[${source}].folder")" >> "${CONFIG}"
+    echo "delete_on_source = $(bashio::config "sources[${source}].delete")" >> "${CONFIG}"
+    echo "ham_label = $(bashio::config "sources[${source}].ham_label")" >> "${CONFIG}"
+    echo "" >> "${CONFIG}"
+done
+
+cat >> "${CONFIG}" <<EOF
 [destination]
 host = $(bashio::config 'destination_host')
 port = $(bashio::config 'destination_port')
@@ -26,7 +32,7 @@ username = $(bashio::config 'destination_username')
 password = $(bashio::config 'destination_password')
 ssl = $(bashio::config 'destination_ssl')
 ham_folder = $(bashio::config 'destination_ham_folder')
-ham_label = $(bashio::config 'destination_ham_label')
+spam_folder = $(bashio::config 'destination_spam_folder')
 
 [spamassassin]
 enabled = $(bashio::config 'spamassassin_enabled')

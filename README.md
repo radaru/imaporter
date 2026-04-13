@@ -11,7 +11,7 @@ Features:
 - **Instant IMAP IDLE Push Validation**: Polls cleanly without exhausting server resources.
 - **SpamAssassin Integration**: Automatically flags or moves spam to the `[Gmail]/Spam` folder based on robust local header execution (Optional and can be disabled in `config.ini`).
 - **Custom Deduplication and Labels**: Configurable hooks to cleanly copy mail to specific label endpoints natively bypassing Gmail POP3 limits.
-- **Systemd Integration**: Securely loads proxy credentials out of memory without retaining configuration files in plain text using `LoadCredential`.
+- **Systemd Integration**: Securely binds explicitly natively within the Raspberry Pi lifecycle constraints.
 
 ---
 
@@ -60,12 +60,6 @@ Or manually:
    ```bash
    sudo nano /opt/imaporter/config.ini
    ```
-   Provide your passwords to the secure systemd credential stores (these files are provisioned locked to root-only, so `config.ini` stays free of cleartext passwords):
-   ```bash
-   sudo nano /etc/imaporter/source.secret
-   sudo nano /etc/imaporter/destination.secret
-   ```
-
 5. **Start Systemd Daemon**:
    ```bash
    sudo systemctl restart imaporter.service
@@ -94,7 +88,7 @@ An App Password is a 16-character passcode that grants an app or device permissi
 6. Click **Generate**.
 7. Google will present you with a 16-character app passcode in a yellow bar (it looks like `abcd efgh ijkl mnop`). 
 
-Place this exact 16-character string into the secure `/etc/imaporter/destination.secret` file and restart your daemon.
+Place this exact 16-character string seamlessly as your password directly into your `config.ini` destination block!
 
 ---
 
