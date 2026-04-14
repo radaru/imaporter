@@ -43,8 +43,36 @@ delivers them into a Gmail (or any IMAP) account via IMAP APPEND.
 ### SpamAssassin
 
 - **Enable SpamAssassin**: Toggle spam filtering on/off
+- **Required Score**: The spam score threshold (default `5.0`). Messages scoring
+  at or above this value are classified as spam and routed to the spam folder.
+  Lower values are more aggressive; higher values are more permissive.
 - **Max Size**: Messages larger than this (in bytes) skip spam scanning.
   Default is 5,242,880 (5 MB).
+
+#### Advanced: Custom SpamAssassin rules
+
+For whitelists, blacklists, per-sender scores, or any other SpamAssassin
+directive, you can provide a custom configuration file at:
+
+```
+/config/imaporter/spamassassin.cf
+```
+
+You can create and edit this file using the
+[File Editor](https://github.com/home-assistant/addons/tree/master/configurator)
+or [Studio Code Server](https://github.com/hassio-addons/addon-vscode) add-ons.
+Its contents are appended to the generated `local.cf` each time the add-on starts,
+after the `required_score` line.
+
+**Example** (`/config/imaporter/spamassassin.cf`):
+
+```
+# Welcomelist a trusted sender domain (formerly whitelist_from)
+welcomelist_from *@trusted-domain.com
+
+# Raise the score for a specific pattern
+score RCVD_IN_SORBS_DUL 3.5
+```
 
 ### Logging
 
@@ -60,4 +88,4 @@ email routing.
 ## Support
 
 For issues and feature requests, visit the
-[GitHub repository](https://github.com/st4nson/imaporter).
+[GitHub repository](https://github.com/radaru/imaporter).

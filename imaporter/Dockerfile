@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     spamassassin \
     spamassassin-client \
     && pip3 install --no-cache-dir --break-system-packages \
-        "imapclient>=3.0.1" \
+    "imapclient>=3.0.1" \
     && sa-update || true
 
 # Copy application code
@@ -24,5 +24,5 @@ LABEL \
     io.hass.type="addon" \
     org.opencontainers.image.title="Home Assistant Add-on: IMAPorter" \
     org.opencontainers.image.description="Fetch emails via IMAP IDLE, filter through SpamAssassin, deliver to Gmail" \
-    org.opencontainers.image.source="https://github.com/st4nson/imaporter" \
+    org.opencontainers.image.source="https://github.com/radaru/imaporter" \
     org.opencontainers.image.licenses="MIT"

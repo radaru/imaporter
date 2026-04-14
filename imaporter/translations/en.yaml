@@ -58,6 +58,12 @@ configuration:
     description: >-
       Enable spam filtering via the bundled SpamAssassin daemon.
       If disabled, all emails are treated as legitimate.
+  spamassassin_required_score:
+    name: SpamAssassin Required Score
+    description: >-
+      Spam score threshold. Messages scoring at or above this value are
+      classified as spam. Lower values are more aggressive (more false positives);
+      higher values are more permissive. Default is 5.0.
   spamassassin_max_size:
     name: SpamAssassin Max Size
     description: >-

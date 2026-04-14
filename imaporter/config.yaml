@@ -1,17 +1,20 @@
 # https://developers.home-assistant.io/docs/apps/configuration#app-configuration
 name: IMAPorter
-version: "1.1.0"
+version: "1.2.0"
 slug: imaporter
 description: >-
   Fetch emails from an external IMAP account via IDLE push notifications,
   filter through SpamAssassin, and deliver to Gmail via IMAP APPEND.
-url: https://github.com/st4nson/imaporter
+url: https://github.com/radaru/imaporter
 arch:
   - aarch64
   - amd64
+map:
+  - homeassistant_config:ro
 init: false
 startup: services
 boot: auto
+homeassistant: "2023.11.0"
 stage: experimental
 options:
   sources:
@@ -31,6 +34,7 @@ options:
   destination_ham_folder: "INBOX"
   destination_spam_folder: "[Gmail]/Spam"
   spamassassin_enabled: true
+  spamassassin_required_score: 5.0
   spamassassin_max_size: 5242880
   log_level: "info"
 schema:
@@ -51,5 +55,6 @@ schema:
   destination_ham_folder: str
   destination_spam_folder: str
   spamassassin_enabled: bool
+  spamassassin_required_score: "float(1,)"
   spamassassin_max_size: "int(0,)"
   log_level: "list(debug|info|warning|error)"
