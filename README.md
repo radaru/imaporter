@@ -17,22 +17,22 @@ Features:
 
 ## Installation
 
-### Option A: Home Assistant Add-on (Recommended)
+### Option A: Home Assistant App (Recommended)
 
 If you run Home Assistant Operating System (HAOS), you can install IMAPorter
-as a supervised add-on with the bundled SpamAssassin — no manual setup needed.
+as a supervised app with the bundled SpamAssassin — no manual setup needed.
 
 [![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fradaru%2Fimaporter)
 
 Or manually:
 
-1. In Home Assistant, go to **Settings > Add-ons > Add-on Store**
+1. In Home Assistant, go to **Settings > Apps > App Store**
 2. Click the **three dots** menu (top right) > **Repositories**
 3. Paste the repository URL: `https://github.com/radaru/imaporter`
 4. Click **Add** > **Close**
-5. Find **IMAPorter** in the store under "Local add-ons" and click **Install**
-6. Configure your source and destination IMAP credentials in the add-on **Configuration** tab
-7. Start the add-on
+5. Find **IMAPorter** in the store under "Local apps" and click **Install**
+6. Configure your source and destination IMAP credentials in the app **Configuration** tab
+7. Start the app
 
 ### Option B: Bare-metal systemd (Linux)
 

@@ -21,8 +21,8 @@ COPY rootfs /
 LABEL \
     io.hass.name="IMAPorter" \
     io.hass.description="IMAP email relay with SpamAssassin filtering" \
-    io.hass.type="addon" \
-    org.opencontainers.image.title="Home Assistant Add-on: IMAPorter" \
+    io.hass.type="app" \
+    org.opencontainers.image.title="Home Assistant App: IMAPorter" \
     org.opencontainers.image.description="Fetch emails via IMAP IDLE, filter through SpamAssassin, deliver to Gmail" \
     org.opencontainers.image.source="https://github.com/radaru/imaporter" \
     org.opencontainers.image.licenses="MIT"

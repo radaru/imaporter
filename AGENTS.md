@@ -5,7 +5,7 @@
 IMAPorter is a single-file Python 3 daemon that fetches emails from an external IMAP
 account via IMAP IDLE, optionally filters them through SpamAssassin (`spamc`), and
 delivers them into a Gmail account via IMAP APPEND. It runs as a systemd service
-or as a **Home Assistant add-on** (HAOS).
+or as a **Home Assistant app** (HAOS).
 
 The entire application logic lives in **one file**: `imaporter/imaporter.py` (≈250 lines).
 There is no package structure, no classes, no async code. Pure procedural Python.
@@ -33,12 +33,12 @@ backward compatibility with the bare-metal deployment path.
 | `plan.md` | Architecture design doc with Mermaid diagram |
 | `README.md` | User-facing documentation and setup instructions |
 | `repository.yaml` | HA app repository manifest (enables GitHub-based install) |
-| `imaporter/config.yaml` | HA add-on manifest (options, schema, architecture) |
-| `imaporter/Dockerfile` | HA add-on Docker image (Alpine + Python3 + SpamAssassin) |
-| `imaporter/rootfs/` | S6 overlay service scripts for HA add-on |
-| `imaporter/DOCS.md` | HA add-on user documentation |
-| `imaporter/CHANGELOG.md` | HA add-on changelog |
-| `imaporter/translations/en.yaml` | English labels for HA add-on config UI |
+| `imaporter/config.yaml` | HA app manifest (options, schema, architecture) |
+| `imaporter/Dockerfile` | HA app Docker image (Alpine + Python3 + SpamAssassin) |
+| `imaporter/rootfs/` | S6 overlay service scripts for HA app |
+| `imaporter/DOCS.md` | HA app user documentation |
+| `imaporter/CHANGELOG.md` | HA app changelog |
+| `imaporter/translations/en.yaml` | English labels for HA app config UI |
 
 ## Build & Run Commands
 
@@ -177,16 +177,16 @@ f-strings exclusively. No `.format()`, no `%` formatting.
   response is available, uses it for efficient COPY; otherwise double-APPENDs (lines 132-153).
 - **No concurrency**: single-threaded, synchronous. One message processed at a time.
 
-## Home Assistant Add-on Architecture
+## Home Assistant App Architecture
 
-The HA add-on runs as a Docker container managed by the HA Supervisor. It uses
+The HA app runs as a Docker container managed by the HA Supervisor. It uses
 the HA base image with S6-Overlay V3 for process supervision.
 
 ### Deployment model
 
-- **Repository-based install**: users add the GitHub repo URL in HA's add-on store.
+- **Repository-based install**: users add the GitHub repo URL in HA's app store.
   The `repository.yaml` at the repo root identifies it as an HA app repository.
-  The `imaporter/` directory (matching the `slug` in `config.yaml`) contains the add-on.
+  The `imaporter/` directory (matching the `slug` in `config.yaml`) contains the app.
 - **Locally built**: the Supervisor builds the Docker image on the user's device from
   the `imaporter/Dockerfile`. No pre-built images are published yet.
 
@@ -204,13 +204,13 @@ the HA base image with S6-Overlay V3 for process supervision.
 
 | File | Purpose |
 |---|---|
-| `imaporter/config.yaml` | Add-on manifest: options schema, arch, startup order |
+| `imaporter/config.yaml` | App manifest: options schema, arch, startup order |
 | `imaporter/Dockerfile` | Alpine base + Python3 + SpamAssassin + imapclient |
 | `imaporter/rootfs/etc/services.d/spamd/run` | S6 service: SpamAssassin daemon |
 | `imaporter/rootfs/etc/services.d/imaporter/run` | S6 service: config bridge + imaporter |
 | `imaporter/translations/en.yaml` | Config UI labels |
 | `imaporter/DOCS.md` | In-app documentation |
-| `repository.yaml` | Repo-level manifest for HA add-on store |
+| `repository.yaml` | Repo-level manifest for HA app store |
 
 ## "Self-healing" document
 
