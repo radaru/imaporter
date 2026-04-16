@@ -1,4 +1,4 @@
-# Home Assistant Add-on: IMAPorter
+# Home Assistant App: IMAPorter
 
 IMAPorter fetches emails from an external IMAP account using IMAP IDLE push
 notifications, optionally filters them through the bundled SpamAssassin, and
@@ -60,8 +60,8 @@ directive, you can provide a custom configuration file at:
 
 You can create and edit this file using the
 [File Editor](https://github.com/home-assistant/addons/tree/master/configurator)
-or [Studio Code Server](https://github.com/hassio-addons/addon-vscode) add-ons.
-Its contents are appended to the generated `local.cf` each time the add-on starts,
+or [Studio Code Server](https://github.com/hassio-addons/addon-vscode) apps.
+Its contents are appended to the generated `local.cf` each time the app starts,
 after the `required_score` line.
 
 **Example** (`/config/imaporter/spamassassin.cf`):

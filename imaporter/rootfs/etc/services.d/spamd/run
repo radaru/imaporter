@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
 # Start SpamAssassin daemon (spamd)
-# Only starts if spamassassin_enabled is true in add-on config
+# Only starts if spamassassin_enabled is true in app config
 # ==============================================================================
 
 if bashio::config.true 'spamassassin_enabled'; then

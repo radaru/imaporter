@@ -1,12 +1,12 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
 # Start IMAPorter service
-# Generates config.ini from HA add-on options and launches imaporter.py
+# Generates config.ini from HA app options and launches imaporter.py
 # ==============================================================================
 
 CONFIG="/data/config.ini"
 
-bashio::log.info "Generating IMAPorter configuration from add-on options..."
+bashio::log.info "Generating IMAPorter configuration from app options..."
 
 # Build config.ini from HA options.json
 > "${CONFIG}"
