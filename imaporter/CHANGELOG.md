@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+- Rename Home Assistant "Add-on" to "App" across the repository to align with latest terminology
+- Update branded icon and logo for better presentation in the Home Assistant app store
+
+
 ## 1.2.0
 
 - Expose `spamassassin_required_score` option in the app UI (default: 5.0)
