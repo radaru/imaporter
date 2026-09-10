@@ -6,6 +6,7 @@ FROM ${BUILD_FROM}
 RUN apk add --no-cache \
     python3 \
     py3-pip \
+    perl-db_file \
     spamassassin \
     spamassassin-client \
     && pip3 install --no-cache-dir --break-system-packages \

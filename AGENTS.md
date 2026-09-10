@@ -209,7 +209,7 @@ the HA base image with S6-Overlay V3 for process supervision.
 | File | Purpose |
 |---|---|
 | `imaporter/config.yaml` | App manifest: options schema, arch, startup order |
-| `imaporter/Dockerfile` | Alpine base + Python3 + SpamAssassin + imapclient |
+| `imaporter/Dockerfile` | Alpine base + Python3 + perl-db_file + SpamAssassin + imapclient |
 | `imaporter/rootfs/etc/services.d/spamd/run` | S6 service: SpamAssassin daemon |
 | `imaporter/rootfs/etc/services.d/imaporter/run` | S6 service: config bridge + imaporter |
 | `imaporter/translations/en.yaml` | Config UI labels |
