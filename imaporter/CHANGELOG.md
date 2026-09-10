@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Persist SpamAssassin Bayes database across container rebuilds (`/data/spamassassin/bayes`)
+- Add system cron daemon (`crond`) for automated daily `sa-update` rule updates and seamless `spamd` reloading
+- Add `perl-db_file` package for Berkeley DB Bayes storage support on Alpine Linux
+- Improve IMAP connection resilience with exponential backoff on retries
+- Add guaranteed cleanup via `try...finally` (only cleans up source if delivery succeeds)
+- Add documentation and examples for manual sender and domain blocking (`blocklist_from`)
+
 ## 1.2.1
 
 - Rename Home Assistant "Add-on" to "App" across the repository to align with latest terminology
