@@ -49,10 +49,14 @@ delivers them into a Gmail (or any IMAP) account via IMAP APPEND.
 - **Max Size**: Messages larger than this (in bytes) skip spam scanning.
   Default is 5,242,880 (5 MB).
 
-#### Advanced: Custom SpamAssassin rules
+#### Persistent Bayes Training & Automatic Rule Updates
 
-For whitelists, blacklists, per-sender scores, or any other SpamAssassin
-directive, you can provide a custom configuration file at:
+- **Automatic Rule Updates**: SpamAssassin rules update automatically upon container startup and every 24 hours in the background via `sa-update`.
+- **Persistent Bayes Database**: Bayes auto-learning database files are persisted under `/data/spamassassin/bayes` on the Home Assistant persistent storage volume so learned spam/ham tokens survive container restarts and updates.
+
+#### Advanced: Custom SpamAssassin rules & Manual Sender Blocking
+
+For manual blocking (blocklisting), welcomelisting, per-sender scores, or any other SpamAssassin directive, you can provide a custom configuration file at:
 
 ```
 /config/imaporter/spamassassin.cf
@@ -61,12 +65,17 @@ directive, you can provide a custom configuration file at:
 You can create and edit this file using the
 [File Editor](https://github.com/home-assistant/addons/tree/master/configurator)
 or [Studio Code Server](https://github.com/hassio-addons/addon-vscode) apps.
-Its contents are appended to the generated `local.cf` each time the app starts,
-after the `required_score` line.
+Its contents are appended to the generated `local.cf` each time the app starts.
 
 **Example** (`/config/imaporter/spamassassin.cf`):
 
 ```
+# Manually block a specific email address
+blocklist_from specific-spammer@example.com
+
+# Manually block an entire spam domain
+blocklist_from *@spam-domain.com
+
 # Welcomelist a trusted sender domain (formerly whitelist_from)
 welcomelist_from *@trusted-domain.com
 

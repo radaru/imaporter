@@ -17,6 +17,10 @@ from imapclient.exceptions import IMAPClientError
 
 logger = logging.getLogger('imaporter')
 
+# --- Constants for Resilience ---
+MAX_RETRIES = 5
+INITIAL_DELAY = 5  # Initial delay in seconds for backoff
+
 @dataclass
 class SourceConfig:
     name: str
@@ -145,10 +149,26 @@ class IMAPConnection:
         self.password = password
         self.client: Optional[IMAPClient] = None
 
-    def connect(self):
-        logger.info(f"Connecting to IMAP {self.username}@{self.host}:{self.port} (SSL: {self.ssl})")
-        self.client = IMAPClient(self.host, port=self.port, ssl=self.ssl, use_uid=True)
-        self.client.login(self.username, self.password)
+    def connect(self) -> bool:
+        """Attempts to connect with exponential backoff."""
+        logger.info(f"Attempting to connect to IMAP {self.username}@{self.host}:{self.port} (SSL: {self.ssl})")
+        
+        for attempt in range(MAX_RETRIES):
+            try:
+                self.client = IMAPClient(self.host, port=self.port, ssl=self.ssl, use_uid=True)
+                self.client.login(self.username, self.password)
+                logger.info("Successfully connected to IMAP server.")
+                return True
+            except (IMAPClientError, socket.error) as e:
+                if attempt < MAX_RETRIES - 1:
+                    # Exponential backoff: delay = INITIAL_DELAY * (2 ** attempt)
+                    delay = INITIAL_DELAY * (2 ** attempt)
+                    logger.warning(f"Connection failed (Attempt {attempt + 1}/{MAX_RETRIES}): {e}. Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    logger.error(f"Failed to connect after {MAX_RETRIES} attempts. Giving up. Error: {e}")
+                    return False
+        return False
 
     def disconnect(self):
         if self.client:
@@ -158,6 +178,7 @@ class IMAPConnection:
                 pass
             finally:
                 self.client = None
+
 
     def ensure_folder(self, folder_name: str):
         try:
@@ -183,11 +204,15 @@ class RelayWorker(threading.Thread):
         self.dst_conn = IMAPConnection(dest_conf.host, dest_conf.port, dest_conf.ssl, dest_conf.username, dest_conf.password)
 
     def connect_clients(self):
+        # Use the improved connect method which handles retries
         if self.src_conn.client is None:
-            self.src_conn.connect()
+            if not self.src_conn.connect():
+                raise ConnectionError("Failed to connect source client after retries.")
             self.src_conn.client.select_folder('INBOX')
+        
         if self.dst_conn.client is None:
-            self.dst_conn.connect()
+            if not self.dst_conn.connect():
+                raise ConnectionError("Failed to connect destination client after retries.")
 
     def process_unseen(self) -> bool:
         try:
@@ -214,7 +239,9 @@ class RelayWorker(threading.Thread):
             logger.info(f"[{self.name}] Processing Msg UID {uid} | Size: {len(raw_msg)} | Spam: {is_spam}")
             
             delivered = False
+            
             try:
+                # --- START CRITICAL PROCESSING BLOCK ---
                 if is_spam:
                     self.dst_conn.ensure_folder(self.dest_conf.spam_folder)
                     self.dst_conn.client.append(self.dest_conf.spam_folder, scored_msg, flags=(b'Junk',))
@@ -237,6 +264,7 @@ class RelayWorker(threading.Thread):
                                     parsed_uid = int(parts[i+2].strip(']'))
                                     break
                                     
+
                         if parsed_uid:
                             self.dst_conn.client.select_folder(self.dest_conf.ham_folder)
                             self.dst_conn.client.copy(parsed_uid, ham_label)
@@ -248,26 +276,25 @@ class RelayWorker(threading.Thread):
                         logger.info(f"[{self.name}] Msg UID {uid} appended to {self.dest_conf.ham_folder}")
                 
                 delivered = True
-            except Exception as e:
-                logger.error(f"[{self.name}] Failed to deliver msg: {e}")
-                # Bubble up so the worker disconnects and spawns a fresh dest_conn channel structure!
-                raise
+            
+            finally:
+                # --- START GUARANTEED CLEANUP BLOCK ---
+                if delivered:
+                    if self.source_conf.delete_on_source:
+                        try:
+                            self.src_conn.client.add_flags(uid, [b'\\Deleted'])
+                            self.src_conn.client.expunge()
+                            logger.info(f"[{self.name}] Msg UID {uid} deleted from source")
+                        except Exception as e:
+                            logger.error(f"[{self.name}] Failed to delete source msg {uid}: {e}")
+                    else:
+                        try:
+                            self.src_conn.client.add_flags(uid, [b'\\Seen'])
+                            logger.info(f"[{self.name}] Msg UID {uid} retained on source tracking as Read")
+                        except Exception as e:
+                            logger.error(f"[{self.name}] Failed to mark Read: {e}")
+                # --- END GUARANTEED CLEANUP BLOCK ---
                 
-            if delivered:
-                if self.source_conf.delete_on_source:
-                    try:
-                        self.src_conn.client.add_flags(uid, [b'\\Deleted'])
-                        self.src_conn.client.expunge()
-                        logger.info(f"[{self.name}] Msg UID {uid} deleted from source")
-                    except Exception as e:
-                        logger.error(f"[{self.name}] Failed to delete source msg {uid}: {e}")
-                else:
-                    try:
-                        self.src_conn.client.add_flags(uid, [b'\\Seen'])
-                        logger.info(f"[{self.name}] Msg UID {uid} retained on source tracking as Read")
-                    except Exception as e:
-                        logger.error(f"[{self.name}] Failed to mark Read: {e}")
-                    
         return True
 
     def run(self):
@@ -283,6 +310,7 @@ class RelayWorker(threading.Thread):
                 logger.debug(f"[{self.name}] Entering IMAP IDLE state...")
                 self.src_conn.client.idle()
                 
+                # Wait for IDLE events or timeout
                 for _ in range(29 * 60):
                     if self.shutdown_event.is_set():
                         break
@@ -291,6 +319,13 @@ class RelayWorker(threading.Thread):
                         break
                 self.src_conn.client.idle_done()
                 
+            except ConnectionError as e:
+                logger.error(f"[{self.name}] Connection failed: {e}. Retrying in 30 seconds...")
+                self.src_conn.disconnect()
+                self.dst_conn.disconnect()
+                for _ in range(30):
+                    if self.shutdown_event.is_set(): break
+                    time.sleep(1)
             except (socket.error, socket.timeout, IMAPClientError) as e:
                 logger.error(f"[{self.name}] Network/IMAP error: {e}")
                 logger.info(f"[{self.name}] Reconnecting in 30 seconds...")
@@ -301,6 +336,7 @@ class RelayWorker(threading.Thread):
                     time.sleep(1)
             except Exception as e:
                 logger.error(f"[{self.name}] Unexpected error: {e}\n{traceback.format_exc()}")
+                # Slow retry for unexpected errors
                 for _ in range(60):
                     if self.shutdown_event.is_set(): break
                     time.sleep(1)
@@ -346,7 +382,7 @@ class RelayDaemon:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='IMAPorter OOP - Mutli-threaded IMAP relay')
+    parser = argparse.ArgumentParser(description='IMAPorter OOP - Multi-threaded IMAP relay')
     parser.add_argument('--config', default='config.ini', help='Path to config file')
     parser.add_argument('--log-level', default=os.environ.get('IMAPORTER_LOG_LEVEL', 'INFO'),
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
