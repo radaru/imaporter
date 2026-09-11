@@ -1,0 +1,15 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Daily SpamAssassin rule update task
+# Executed automatically once per day by crond
+# ==============================================================================
+
+if bashio::config.true 'spamassassin_enabled'; then
+    bashio::log.info "Running daily SpamAssassin rule update (sa-update)..."
+    if sa-update; then
+        bashio::log.info "SpamAssassin rules updated successfully. Reloading spamd..."
+        pkill -HUP spamd || true
+    else
+        bashio::log.info "No new SpamAssassin rule updates available or update check completed."
+    fi
+fi

@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start System Cron Daemon
+# Handles scheduled periodic tasks (e.g., /etc/periodic/daily/sa-update)
+# ==============================================================================
+
+bashio::log.info "Starting system cron daemon (crond)..."
+exec crond -f -l 2

@@ -10,6 +10,11 @@ if bashio::config.true 'spamassassin_enabled'; then
     bashio::log.info "Configuring SpamAssassin (required_score: ${SCORE})..."
     echo "required_score ${SCORE}" > /etc/mail/spamassassin/local.cf
 
+    # Enable persistent Bayes DB on /data volume
+    mkdir -p /data/spamassassin
+    echo "bayes_path /data/spamassassin/bayes" >> /etc/mail/spamassassin/local.cf
+    echo "bayes_file_mode 0666" >> /etc/mail/spamassassin/local.cf
+
     # Append user-supplied rules from /config/imaporter/spamassassin.cf if present
     EXTERNAL_CF="/homeassistant/imaporter/spamassassin.cf"
     if [ -f "${EXTERNAL_CF}" ]; then
@@ -24,7 +29,7 @@ if bashio::config.true 'spamassassin_enabled'; then
         bashio::log.warning "SpamAssassin rule update failed or no new updates available."
     fi
     bashio::log.info "Starting SpamAssassin daemon..."
-    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config
+    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config --syslog=stderr
 else
     bashio::log.info "SpamAssassin disabled in configuration, skipping."
     exec sleep infinity
