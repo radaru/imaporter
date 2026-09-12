@@ -2,8 +2,8 @@
 
 ## 1.3.1
 
-- Fix `spamd` running as `nobody` by adding `-u root` flag (container runs as root intentionally)
-- Fix Bayes lock file `Permission denied` error on `/data/spamassassin/bayes.lock` (side-effect of above)
+- Fix `spamd` "still running as root" warning by explicitly passing `-u nobody`
+- Fix Bayes lock file `Permission Denied` by running `chown -R nobody:nobody /data/spamassassin` before `spamd` starts
 - Disable DNSBL queries blocked for residential IPs (`multi.uribl.com`, `list.dnswl.org`, `zen.spamhaus.org`) via `dns_query_restriction` to eliminate repeated warnings
 
 ## 1.3.0

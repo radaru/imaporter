@@ -11,7 +11,9 @@ if bashio::config.true 'spamassassin_enabled'; then
     echo "required_score ${SCORE}" > /etc/mail/spamassassin/local.cf
 
     # Enable persistent Bayes DB on /data volume
+    # chown to nobody so spamd (which runs as nobody) can write lock/db files
     mkdir -p /data/spamassassin
+    chown -R nobody:nobody /data/spamassassin
     echo "bayes_path /data/spamassassin/bayes" >> /etc/mail/spamassassin/local.cf
     echo "bayes_file_mode 0666" >> /etc/mail/spamassassin/local.cf
 
@@ -37,7 +39,7 @@ if bashio::config.true 'spamassassin_enabled'; then
         bashio::log.warning "SpamAssassin rule update failed or no new updates available."
     fi
     bashio::log.info "Starting SpamAssassin daemon..."
-    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config --syslog=stderr -u root
+    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config --syslog=stderr -u nobody
 else
     bashio::log.info "SpamAssassin disabled in configuration, skipping."
     exec sleep infinity
