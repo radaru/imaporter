@@ -11,9 +11,19 @@ if bashio::config.true 'spamassassin_enabled'; then
     echo "required_score ${SCORE}" > /etc/mail/spamassassin/local.cf
 
     # Enable persistent Bayes DB on /data volume
+    # chown to nobody so spamd (which runs as nobody) can write lock/db files
     mkdir -p /data/spamassassin
+    chown -R nobody:nobody /data/spamassassin
     echo "bayes_path /data/spamassassin/bayes" >> /etc/mail/spamassassin/local.cf
     echo "bayes_file_mode 0666" >> /etc/mail/spamassassin/local.cf
+
+    # Disable DNSBL queries blocked for residential/home IPs to suppress warnings
+    echo "dns_query_restriction deny multi.uribl.com" >> /etc/mail/spamassassin/local.cf
+    echo "dns_query_restriction deny list.dnswl.org" >> /etc/mail/spamassassin/local.cf
+    echo "dns_query_restriction deny zen.spamhaus.org" >> /etc/mail/spamassassin/local.cf
+    echo "score URIBL_BLOCKED 0" >> /etc/mail/spamassassin/local.cf
+    echo "score RCVD_IN_DNSWL_BLOCKED 0" >> /etc/mail/spamassassin/local.cf
+    echo "score RCVD_IN_ZEN_BLOCKED_OPENDNS 0" >> /etc/mail/spamassassin/local.cf
 
     # Append user-supplied rules from /config/imaporter/spamassassin.cf if present
     EXTERNAL_CF="/homeassistant/imaporter/spamassassin.cf"
@@ -29,7 +39,7 @@ if bashio::config.true 'spamassassin_enabled'; then
         bashio::log.warning "SpamAssassin rule update failed or no new updates available."
     fi
     bashio::log.info "Starting SpamAssassin daemon..."
-    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config --syslog=stderr
+    exec spamd --listen=127.0.0.1 --allow-tell --nouser-config --syslog=stderr -u nobody
 else
     bashio::log.info "SpamAssassin disabled in configuration, skipping."
     exec sleep infinity
